@@ -2,53 +2,60 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Live Waveform</title>
+  <title>Live Stream Overlay</title>
 
   <style>
+    /* Full screen centering with Flexbox */
     body {
       margin: 0;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Arial Black', Gadget, sans-serif; /* Thicker font for impact */
       text-align: center;
-      transition: background 2s;
+      transition: background 2s ease-in-out;
+      overflow: hidden;
     }
 
-    h1, h2, h3 {
+    h1 {
+      font-size: 5rem;
       margin: 10px 0;
-      font-weight: normal;
+      color: #333;
     }
 
-    canvas {
-      display: block;
-      margin: auto;
-      border: 2px solid black;
-      background: white;
-      margin-top: 30px;
+    h2 {
+      font-size: 2.5rem;
+      margin: 20px 0;
+      color: #555;
+      max-width: 80%;
+    }
+
+    h3 {
+      font-size: 2rem;
+      margin: 10px 0;
+      color: #777;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- Welcome Text -->
   <h1>WELCOME TO MY LIVE</h1>
-  <h2>KEEN FOR A REQUEST? LMK (MUST ALIGN WITH GENRE)</h2>
+  <h2>KEEN FOR A REQUEST? LMK<br>(MUST ALIGN WITH GENRE)</h2>
   <h3>HAVE FUN!!!</h3>
 
-  <!-- Waveform Canvas -->
-  <canvas id="waveform" width="700" height="200"></canvas>
-
   <script>
-    const canvas = document.getElementById("waveform");
-    const ctx = canvas.getContext("2d");
-
-    /* Background color changer */
+    /* Smooth background color changer */
     const colors = [
       "#f5f5f5",
       "#dbeafe",
       "#fce7f3",
       "#dcfce7",
-      "#fef9c3"
+      "#fef9c3",
+      "#e0f2fe"
     ];
 
     let colorIndex = 0;
@@ -57,136 +64,6 @@
       document.body.style.background = colors[colorIndex];
       colorIndex = (colorIndex + 1) % colors.length;
     }, 4000);
-
-    /* Random waveform animation */
-    function drawRandomWave() {
-      requestAnimationFrame(drawRandomWave);
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      ctx.beginPath();
-
-      let x = 0;
-      const sliceWidth = canvas.width / 100;
-
-      for (let i = 0; i < 100; i++) {
-        // Random smooth wave motion
-        const y =
-          canvas.height / 2 +
-          Math.sin(i * 0.3 + Date.now() * 0.005) * 50 +
-          (Math.random() - 0.5) * 20;
-
-        if (i === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
-
-        x += sliceWidth;
-      }
-
-      ctx.strokeStyle = "red";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-
-    drawRandomWave();
-  </script>
-
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Live Waveform</title>
-
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      transition: background 2s;
-    }
-
-    h1, h2, h3 {
-      margin: 10px 0;
-      font-weight: normal;
-    }
-
-    canvas {
-      display: block;
-      margin: auto;
-      border: 2px solid black;
-      background: white;
-      margin-top: 30px;
-    }
-  </style>
-</head>
-
-<body>
-
-  <!-- Welcome Text -->
-  <h1>WELCOME TO MY LIVE</h1>
-  <h2>KEEN FOR A REQUEST? LMK (MUST ALIGN WITH GENRE)</h2>
-  <h3>HAVE FUN!!!</h3>
-
-  <!-- Waveform Canvas -->
-  <canvas id="waveform" width="700" height="200"></canvas>
-
-  <script>
-    const canvas = document.getElementById("waveform");
-    const ctx = canvas.getContext("2d");
-
-    /* Background color changer */
-    const colors = [
-      "#f5f5f5",
-      "#dbeafe",
-      "#fce7f3",
-      "#dcfce7",
-      "#fef9c3"
-    ];
-
-    let colorIndex = 0;
-
-    setInterval(() => {
-      document.body.style.background = colors[colorIndex];
-      colorIndex = (colorIndex + 1) % colors.length;
-    }, 4000);
-
-    /* Random waveform animation */
-    function drawRandomWave() {
-      requestAnimationFrame(drawRandomWave);
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      ctx.beginPath();
-
-      let x = 0;
-      const sliceWidth = canvas.width / 100;
-
-      for (let i = 0; i < 100; i++) {
-        // Random smooth wave motion
-        const y =
-          canvas.height / 2 +
-          Math.sin(i * 0.3 + Date.now() * 0.005) * 50 +
-          (Math.random() - 0.5) * 20;
-
-        if (i === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
-
-        x += sliceWidth;
-      }
-
-      ctx.strokeStyle = "red";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-
-    drawRandomWave();
   </script>
 
 </body>
