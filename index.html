@@ -2,46 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Live Microphone Waveform Visualizer</title>
+  <title>Mic Waveform</title>
 
   <style>
     body {
+      margin: 0;
+      overflow: hidden;
       font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 40px;
-      background: #f5f5f5;
-    }
-
-    h2 {
-      color: #333;
-    }
-
-    button {
-      padding: 12px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 15px;
+      transition: background 2s;
     }
 
     canvas {
+      display: block;
+      margin: auto;
       border: 2px solid black;
-      margin-top: 20px;
       background: white;
+      margin-top: 80px;
+    }
+
+    /* Button bottom-left */
+    button {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      padding: 12px 18px;
+      font-size: 15px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
     }
   </style>
 </head>
 
 <body>
 
-  <h2>🎤 Live Microphone Waveform</h2>
-
-  <p>Press start and allow microphone access.</p>
-
-  <button id="startBtn">Start Microphone</button>
-
-  <br><br>
-
   <canvas id="waveform" width="700" height="200"></canvas>
+
+  <button id="startBtn">🎤 Start</button>
 
   <script>
     const startBtn = document.getElementById("startBtn");
@@ -52,29 +49,43 @@
     let analyser;
     let microphone;
 
+    /* Background color changer */
+    const colors = [
+      "#f5f5f5",
+      "#dbeafe",
+      "#fce7f3",
+      "#dcfce7",
+      "#fef9c3"
+    ];
+
+    let index = 0;
+
+    setInterval(() => {
+      document.body.style.background = colors[index];
+      index = (index + 1) % colors.length;
+    }, 4000);
+
+    /* Microphone Start */
     startBtn.addEventListener("click", async () => {
       try {
-        // Ask for microphone access
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-        // Setup Audio Context
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
         analyser = audioContext.createAnalyser();
         analyser.fftSize = 2048;
 
-        // Connect microphone stream
         microphone = audioContext.createMediaStreamSource(stream);
         microphone.connect(analyser);
 
-        startBtn.innerText = "Microphone Running ✅";
+        startBtn.innerText = "Running ✅";
 
         drawWaveform();
       } catch (err) {
-        alert("Microphone access denied or not supported.");
-        console.error(err);
+        alert("Microphone access denied.");
       }
     });
 
+    /* Draw waveform */
     function drawWaveform() {
       requestAnimationFrame(drawWaveform);
 
@@ -83,10 +94,8 @@
 
       analyser.getByteTimeDomainData(dataArray);
 
-      // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw waveform line
       ctx.beginPath();
       const sliceWidth = canvas.width / bufferLength;
       let x = 0;
