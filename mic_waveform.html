@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Live Microphone Waveform Visualizer</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 40px;
+      background: #f5f5f5;
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    canvas {
+      border: 2px solid black;
+      margin-top: 20px;
+      background: white;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>🎤 Live Microphone Waveform</h2>
+
+  <p>Press start and allow microphone access.</p>
+
+  <button id="startBtn">Start Microphone</button>
+
+  <br><br>
+
+  <canvas id="waveform" width="700" height="200"></canvas>
+
+  <script>
+    const startBtn = document.getElementById("startBtn");
+    const canvas = document.getElementById("waveform");
+    const ctx = canvas.getContext("2d");
+
+    let audioContext;
+    let analyser;
+    let microphone;
+
+    startBtn.addEventListener("click", async () => {
+      try {
+        // Ask for microphone access
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+        // Setup Audio Context
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+
+        // Connect microphone stream
+        microphone = audioContext.createMediaStreamSource(stream);
+        microphone.connect(analyser);
+
+        startBtn.innerText = "Microphone Running ✅";
+
+        drawWaveform();
+      } catch (err) {
+        alert("Microphone access denied or not supported.");
+        console.error(err);
+      }
+    });
+
+    function drawWaveform() {
+      requestAnimationFrame(drawWaveform);
+
+      const bufferLength = analyser.fftSize;
+      const dataArray = new Uint8Array(bufferLength);
+
+      analyser.getByteTimeDomainData(dataArray);
+
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw waveform line
+      ctx.beginPath();
+      const sliceWidth = canvas.width / bufferLength;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const v = dataArray[i] / 128.0;
+        const y = (v * canvas.height) / 2;
+
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+
+        x += sliceWidth;
+      }
+
+      ctx.strokeStyle = "red";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  </script>
+
+</body>
+</html>
