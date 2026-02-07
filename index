@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Audio Waveform Visualizer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    canvas {
+      border: 1px solid black;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Upload Audio & View Waveform</h2>
+
+  <!-- Audio Input -->
+  <input type="file" id="audioFile" accept="audio/*">
+
+  <br><br>
+
+  <!-- Audio Player -->
+  <audio id="audio" controls></audio>
+
+  <br><br>
+
+  <!-- Waveform Canvas -->
+  <canvas id="waveform" width="600" height="200"></canvas>
+
+  <script>
+    const fileInput = document.getElementById("audioFile");
+    const audio = document.getElementById("audio");
+    const canvas = document.getElementById("waveform");
+    const ctx = canvas.getContext("2d");
+
+    let audioContext;
+    let analyser;
+    let source;
+
+    fileInput.addEventListener("change", function () {
+      const file = this.files[0];
+      if (!file) return;
+
+      // Load audio file into player
+      const url = URL.createObjectURL(file);
+      audio.src = url;
+
+      // Setup Audio Context
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 2048;
+
+      source = audioContext.createMediaElementSource(audio);
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
+
+      drawWaveform();
+    });
+
+    function drawWaveform() {
+      requestAnimationFrame(drawWaveform);
+
+      const bufferLength = analyser.fftSize;
+      const dataArray = new Uint8Array(bufferLength);
+
+      analyser.getByteTimeDomainData(dataArray);
+
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw waveform
+      ctx.beginPath();
+      const sliceWidth = canvas.width / bufferLength;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const v = dataArray[i] / 128.0;
+        const y = (v * canvas.height) / 2;
+
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+
+        x += sliceWidth;
+      }
+
+      ctx.strokeStyle = "blue";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  </script>
+
+</body>
+</html>
