@@ -1,156 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ONYXX Ecom Store Test</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ONYXX Test Store</title>
+
 <style>
-  body { font-family: system-ui, -apple-system, sans-serif; background: #f7f7f7; margin:0; padding:0; }
-  header { background:#000; color:#fff; padding:16px; text-align:center; }
-  .container { max-width:600px; margin:30px auto; background:#fff; padding:20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
-  h2 { margin-bottom:16px; font-size:22px; }
-  .product { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding:10px; border-bottom:1px solid #eee; }
-  .product button { padding:6px 12px; background:#000; color:#fff; border:none; border-radius:8px; cursor:pointer; }
-  #onyxx-order-form { margin-top:20px; }
-  #onyxx-order-form h3 { font-size:18px; font-weight:600; margin-bottom:16px; }
-  #onyxx-order-form input { width:100%; padding:10px 14px; border:1px solid #e5e5e5; border-radius:12px; margin-bottom:10px; font-size:14px; }
-  #onyxx-order-form button { width:100%; padding:12px; background:#000; color:#fff; border:none; border-radius:12px; font-size:14px; font-weight:600; cursor:pointer; }
-  .flex { display:flex; gap:10px; margin-bottom:10px; }
-  .flex input { flex:1; }
-  .flex input:nth-child(2) { flex:2; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #f5f5f7;
+}
+
+header {
+  background: #000;
+  color: white;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+h1 { font-size: 18px; margin: 0; }
+
+.cart-btn {
+  background: white;
+  color: black;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  padding: 30px;
+}
+
+.product {
+  background: white;
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.product img {
+  width: 100%;
+  border-radius: 12px;
+}
+
+.product h3 {
+  margin: 10px 0 6px;
+  font-size: 16px;
+}
+
+.product p {
+  margin: 0 0 10px;
+  font-weight: 600;
+}
+
+.product button {
+  width: 100%;
+  padding: 10px;
+  background: black;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.cart {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 350px;
+  height: 100%;
+  background: white;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.1);
+  padding: 20px;
+  transform: translateX(100%);
+  transition: 0.3s ease;
+  overflow-y: auto;
+}
+
+.cart.active {
+  transform: translateX(0);
+}
+
+.cart h2 {
+  margin-top: 0;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.checkout-form input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.checkout-form button {
+  width: 100%;
+  padding: 12px;
+  background: black;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+}
 </style>
 </head>
 <body>
 
 <header>
-  <h1>ONYXX Ecom Store Test</h1>
+  <h1>ONYXX Store</h1>
+  <div class="cart-btn" onclick="toggleCart()">Cart (<span id="cart-count">0</span>)</div>
 </header>
 
-<div class="container">
-  <h2>Products</h2>
-  <div class="product">
-    <span>Cool T-Shirt ($19.99)</span>
-    <button data-name="Cool T-Shirt" data-price="19.99">Add to Order</button>
-  </div>
-  <div class="product">
-    <span>Stylish Hat ($14.99)</span>
-    <button data-name="Stylish Hat" data-price="14.99">Add to Order</button>
-  </div>
-  <div class="product">
-    <span>Sneakers ($49.99)</span>
-    <button data-name="Sneakers" data-price="49.99">Add to Order</button>
-  </div>
+<div class="products" id="product-list"></div>
 
-  <!-- ONYXX Embedded Order Form -->
-  <div id="onyxx-order-form">
-    <h3>Place an Order</h3>
-    <form id="orderForm">
-      <input name="customer_name" placeholder="Your Name" required />
-      <input name="customer_email" placeholder="Email" type="email" required />
-      <input name="product_name" placeholder="Product" required />
-      <div class="flex">
-        <input name="quantity" type="number" min="1" value="1" placeholder="Qty" />
-        <input name="shipping_address" placeholder="Shipping Address" />
-      </div>
-      <button type="submit">Submit Order</button>
-    </form>
-  </div>
+<div class="cart" id="cart">
+  <h2>Your Cart</h2>
+  <div id="cart-items"></div>
+  <hr />
+  <p><strong>Total: $<span id="cart-total">0.00</span></strong></p>
+
+  <form class="checkout-form" onsubmit="submitOrder(event)">
+    <input name="customer_name" placeholder="Full Name" required />
+    <input name="customer_email" type="email" placeholder="Email" required />
+    <input name="shipping_address" placeholder="Shipping Address" required />
+    <button type="submit">Complete Order</button>
+  </form>
 </div>
 
-<!-- ONYXX Order Widget -->
 <script>
-(function() {
-  window.ONYXXOrderWidget = {
-    submit: function(orderData) {
-      return fetch('https://builtbyonyxx.base44.app/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...orderData,
-          source: 'embed',
-          order_number: 'EMB-' + Date.now().toString(36).toUpperCase(),
-          status: 'pending'
-        })
-      }).then(r => r.json());
-    }
+const products = [
+  { id: 1, name: "ONYXX Hoodie", price: 59.99, image: "https://picsum.photos/400?1" },
+  { id: 2, name: "ONYXX Sneakers", price: 129.99, image: "https://picsum.photos/400?2" },
+  { id: 3, name: "ONYXX Cap", price: 29.99, image: "https://picsum.photos/400?3" }
+];
+
+let cart = [];
+
+function renderProducts() {
+  const container = document.getElementById("product-list");
+  container.innerHTML = products.map(p => `
+    <div class="product">
+      <img src="${p.image}" />
+      <h3>${p.name}</h3>
+      <p>$${p.price}</p>
+      <button onclick="addToCart(${p.id})">Add to Cart</button>
+    </div>
+  `).join("");
+}
+
+function addToCart(id) {
+  const product = products.find(p => p.id === id);
+  const existing = cart.find(i => i.id === id);
+
+  if (existing) {
+    existing.quantity++;
+  } else {
+    cart.push({ ...product, quantity: 1 });
+  }
+
+  updateCart();
+}
+
+function updateCart() {
+  document.getElementById("cart-count").textContent =
+    cart.reduce((sum, i) => sum + i.quantity, 0);
+
+  const cartItems = document.getElementById("cart-items");
+  cartItems.innerHTML = cart.map(i => `
+    <div class="cart-item">
+      <span>${i.name} x${i.quantity}</span>
+      <span>$${(i.price * i.quantity).toFixed(2)}</span>
+    </div>
+  `).join("");
+
+  const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  document.getElementById("cart-total").textContent = total.toFixed(2);
+}
+
+function toggleCart() {
+  document.getElementById("cart").classList.toggle("active");
+}
+
+function submitOrder(e) {
+  e.preventDefault();
+  const f = e.target;
+
+  const orderData = {
+    customer_name: f.customer_name.value,
+    customer_email: f.customer_email.value,
+    shipping_address: f.shipping_address.value,
+    items: cart.map(i => ({
+      product_name: i.name,
+      quantity: i.quantity,
+      unit_price: i.price
+    }))
   };
-})();
-</script>
 
-<!-- ONYXX Customer Widget -->
-<script>
-(function() {
-  window.ONYXXCustomerWidget = {
-    register: function(customerData) {
-      return fetch('https://builtbyonyxx.base44.app/api/customers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(customerData)
-      }).then(r => r.json());
-    }
-  };
-})();
-</script>
+  fetch('https://stream-commerce-pro.base44.app/api/orders', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ...orderData,
+      source: 'storefront',
+      order_number: 'WEB-' + Date.now().toString(36).toUpperCase(),
+      status: 'pending'
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert("Order sent to ONYXX backend!");
+    cart = [];
+    updateCart();
+    toggleCart();
+  })
+  .catch(err => alert("Error submitting order"));
+}
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const productButtons = document.querySelectorAll('.product button');
-  const productInput = document.querySelector('#onyxx-order-form input[name="product_name"]');
-  const quantityInput = document.querySelector('#onyxx-order-form input[name="quantity"]');
-  const orderForm = document.getElementById('orderForm');
-
-  // Auto-fill product on button click
-  productButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const name = btn.dataset.name;
-      const price = parseFloat(btn.dataset.price);
-      productInput.value = name;
-      quantityInput.value = 1;
-      alert(`${name} added to order! Fill in your details below.`);
-      productInput.scrollIntoView({ behavior: 'smooth' });
-    });
-  });
-
-  // Submit order using ONYXXOrderWidget
-  orderForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const f = e.target;
-    const orderData = {
-      customer_name: f.customer_name.value,
-      customer_email: f.customer_email.value,
-      shipping_address: f.shipping_address.value,
-      items: [
-        {
-          product_name: f.product_name.value,
-          quantity: parseInt(f.quantity.value),
-          unit_price: 0 // optional, can integrate price mapping if needed
-        }
-      ]
-    };
-
-    // Register customer first
-    ONYXXCustomerWidget.register({
-      name: f.customer_name.value,
-      email: f.customer_email.value,
-      address: f.shipping_address.value
-    }).then(customerResult => {
-      console.log('Customer registered:', customerResult);
-
-      // Submit order
-      ONYXXOrderWidget.submit(orderData).then(orderResult => {
-        console.log('Order submitted:', orderResult);
-        alert('Order submitted successfully! Check console for details.');
-        f.reset();
-      }).catch(err => {
-        console.error('Order failed:', err);
-        alert('Order submission failed. Check console.');
-      });
-    }).catch(err => {
-      console.error('Customer registration failed:', err);
-      alert('Customer registration failed. Check console.');
-    });
-  });
-});
+renderProducts();
 </script>
 
 </body>
